@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><title>COD Morning Report</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:980px;margin:24px auto;padding:0 16px;color:#222}
+h1{margin:0 0 4px}.sub{color:#666;margin-bottom:18px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{border:1px solid #ddd;border-radius:10px;padding:14px}.big{font-size:30px;font-weight:700}
+.green{color:#0a7a3d}.red{color:#b3261e}.row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+table{border-collapse:collapse;width:100%;font-size:13px}td,th{border-bottom:1px solid #eee;padding:6px;text-align:left}
+.pill{padding:2px 8px;border-radius:99px;background:#eee;font-size:12px}small{color:#777}
+</style></head><body>
+<h1>COD Morning Report</h1>
+<div class="sub">Day: <form style="display:inline"><select name="date" onchange="this.form.submit()">
+{% for d in dates %}<option {{'selected' if d|string==chosen}}>{{d}}</option>{% endfor %}</select></form>
+&middot; {{n}} COD orders &middot; <small>Rs figures are estimates (assumptions in config.yaml)</small></div>
+<div class="grid">
+{% for a in ['SHIP','NUDGE','CONFIRM','HOLD'] %}<div class="card"><div>{{labels[a]}}</div><div class="big">{{counts[a]}}</div></div>{% endfor %}
+</div>
+<div class="row">
+<div class="card"><div>Saved from avoided RTOs</div><div class="big green">Rs {{'{:,.0f}'.format(saved)}}</div></div>
+<div class="card"><div>Lost from cancels / unconfirmed that may be genuine</div><div class="big red">Rs {{'{:,.0f}'.format(lost)}}</div></div>
+<div class="card"><div>Net impact</div><div class="big {{'green' if net>=0 else 'red'}}">Rs {{'{:,.0f}'.format(net)}}</div></div>
+</div>
+<p><small>Last 30 days in the data: net Rs {{'{:,.0f}'.format(mnet)}} over {{mn}} orders. Thresholds now: ship &lt;{{cfg.thresholds.ship_below}}, nudge &lt;{{cfg.thresholds.nudge_below}}, confirm &lt;{{cfg.thresholds.confirm_below}}, else hold.</small></p>
+<h3>Riskiest orders of the day</h3>
+<table><tr><th>Order</th><th>Value</th><th>Action</th><th>Why</th></tr>
+{% for r in rows %}<tr><td>{{r.order_id}}</td><td>Rs {{r.order_value}}</td><td><span class="pill">{{labels[r.action]}}</span></td><td>{{r.reason}}</td></tr>{% endfor %}
+</table>
+<p><a href="/chat">Open WhatsApp simulator</a></p>
+</body></html>

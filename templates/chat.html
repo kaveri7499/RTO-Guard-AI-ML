@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><title>WhatsApp simulator</title>
+<style>body{font-family:system-ui;max-width:640px;margin:24px auto;padding:0 12px}
+#box{background:#e5ddd5;border-radius:10px;padding:12px;min-height:260px}
+.m{max-width:80%;padding:8px 10px;margin:6px 0;border-radius:8px;white-space:pre-wrap}
+.bot{background:#fff}.customer{background:#dcf8c6;margin-left:auto}.system{background:#fff3cd;font-size:12px;margin:6px auto}
+input,select,button{padding:7px;margin:3px}</style></head><body>
+<h2>WhatsApp flow simulator</h2>
+<p>Pick a sample order, then chat as the customer. Use the clock buttons to simulate time passing.</p>
+<select id="ex">
+<option value='{"customer_name":"Ritu Sharma","phone":"9876543210","address":"xyz","city":"Gorakhpur","state":"Uttar Pradesh","pincode":273001,"order_value":799,"items":"Satin Bonnet","num_items":1,"customer_prior_orders":0,"customer_prior_rto":0,"utm_source":"meta_ads","courier":"Xpressbees","order_id":"DEMO1"}'>Risky new customer (junk address, Gorakhpur)</option>
+<option value='{"customer_name":"Anita Rao","phone":"9876543211","address":"House No. 12, Sector 4, near Water Tank","city":"Patna","state":"Bihar","pincode":800001,"order_value":649,"items":"Hair Oil 100ml","num_items":1,"customer_prior_orders":0,"customer_prior_rto":0,"utm_source":"meta_ads","courier":"Delhivery","order_id":"DEMO2"}'>Medium risk (Patna, good address) -> nudge</option>
+<option value='{"customer_name":"Divya Nair","phone":"9876543212","address":"Flat 85, Sunrise Apartments, Station Road","city":"Pune","state":"Maharashtra","pincode":411001,"order_value":1199,"items":"Claw Clip Set","num_items":2,"customer_prior_orders":2,"customer_prior_rto":0,"utm_source":"direct","courier":"Delhivery","order_id":"DEMO3"}'>Low risk repeat customer -> ship</option>
+</select><button onclick="start()">Start</button>
+<div id="dec" style="margin:8px 0;font-size:14px"></div><div id="box"></div>
+<input id="txt" placeholder="type a reply (yes / haan / 2 / random text)"><button onclick="send()">Send</button>
+<button onclick="tick(6)">+6h</button><button onclick="tick(24)">+24h (no reply)</button><div id="st"></div>
+<script>
+let id=null;
+function draw(j){const b=document.getElementById('box');b.innerHTML='';
+ (j.log||[]).forEach(m=>{const d=document.createElement('div');d.className='m '+m.who;d.textContent=m.text;b.appendChild(d)});
+ document.getElementById('st').textContent='State: '+(j.state||'');}
+async function post(u,d){return (await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)})).json()}
+async function start(){const o=JSON.parse(document.getElementById('ex').value);const j=await post('/api/wa/start',o);
+ document.getElementById('dec').textContent='Decision: '+j.decision.label+' | '+j.decision.reason;
+ if(j.id){id=j.id;draw(j)}else{id=null;document.getElementById('box').textContent='No WhatsApp message needed for this bucket.'}}
+async function send(){if(!id)return;const t=document.getElementById('txt');draw(await post('/api/wa/reply',{id,text:t.value}));t.value=''}
+async function tick(h){if(!id)return;draw(await post('/api/wa/tick',{id,hours:h}))}
+</script></body></html>

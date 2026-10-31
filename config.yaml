@@ -1,0 +1,39 @@
+# ============================================================
+# EDIT THIS FILE TO CHANGE THE RULES. No code changes needed.
+# After editing, restart the app (or re-run `python backtest.py`).
+# "risk" = predicted chance (0 to 1) that a COD order gets returned.
+# ============================================================
+
+thresholds:
+  ship_below: 0.20          # risk below this -> Ship as-is
+  nudge_below: 0.45         # risk below this -> Nudge to prepaid
+  confirm_below: 0.85       # risk below this -> Ship after WhatsApp confirmation
+                            # risk at/above this -> Hold / cancel
+
+protect_first_time_customers: true   # Marketing guard: a first-time buyer is never
+                                     # held/cancelled by risk alone; goes to confirmation.
+                                     # (Still held if address AND name are both junk.)
+
+# ---- Money facts (from the brief) ----
+money:
+  forward_ship: 65
+  return_ship: 65
+  packaging: 25
+  damage_rate: 0.08
+  product_cost: 180
+  gross_margin: 0.62
+  prepaid_rto_rate: 0.04
+  cac_new_customer: 300
+
+# ---- ASSUMPTIONS (not in the data - measure these in week 1) ----
+assumptions:
+  confirm_catch_rate: 0.60        # share of would-be-RTO customers who do NOT confirm
+  confirm_drop_genuine: 0.12      # share of genuine customers who ignore/decline confirmation
+  nudge_accept_rate: 0.25         # share of nudged customers who pay online
+  future_value_new_customer: 150  # Rs of repeat-purchase value lost if a NEW customer is cancelled
+  whatsapp_msg_cost: 1.0
+
+prepaid_discount:
+  share_of_breakeven: 0.35        # offer this share of the max discount we can afford
+  min_rupees: 20
+  max_rupees: 60
